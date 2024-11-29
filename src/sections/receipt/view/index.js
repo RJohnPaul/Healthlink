@@ -1,0 +1,1 @@
+export { default as ReceiptView } from './receipt-view';

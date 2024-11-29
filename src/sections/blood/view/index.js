@@ -1,0 +1,1 @@
+export { default as BloodView } from './blood-view';
