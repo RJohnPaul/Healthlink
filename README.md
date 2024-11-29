@@ -230,7 +230,7 @@ Follow these steps to set up the project locally:
 ## Screenshots
 
 ### Home Dashboard
-![Home Dashboard](path/to/dashboard-screenshot.png)
+![Home Dashboard](https://github.com/RJohnPaul/Healthlink/blob/1d9056c3e47097346b3cf488f67171e4a5d50827/home.png)
 
 ### Staff Attendance Page
 ![Staff Page](path/to/staff-page-screenshot.png)
