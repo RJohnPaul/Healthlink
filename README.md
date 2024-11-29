@@ -233,7 +233,7 @@ Follow these steps to set up the project locally:
 ![Home Dashboard](https://github.com/RJohnPaul/Healthlink/blob/1d9056c3e47097346b3cf488f67171e4a5d50827/home.png)
 
 ### Staff Attendance Page
-![Staff Page](path/to/staff-page-screenshot.png)
+![Staff Page](https://github.com/RJohnPaul/Healthlink/blob/f7345faed25667b29429951ce55fb6d37a74081b/staff.png)
 
 ### Receipt Generation
 ![Dynamic Receipt](path/to/receipt-screenshot.png)
