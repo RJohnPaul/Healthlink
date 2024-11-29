@@ -31,6 +31,7 @@ Welcome to **HealthlinkPro** – a comprehensive healthcare management system de
 
 4. **Home Dashboard with Summary Metrics**
    - A **summary page** serves as the dashboard homepage, providing real-time insights:
+     
      - **Daily Patients**
      - **Total Patients**
      - **Total Revenue**
