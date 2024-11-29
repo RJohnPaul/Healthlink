@@ -33,7 +33,7 @@ import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, getComparator, applyFilter } from '../utils';
 
-export default function ProductsView() {
+export default function RegularView() {
   const [selected, setSelected] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [openPinModal, setOpenPinModal] = useState(false);
@@ -302,7 +302,6 @@ export default function ProductsView() {
                   { id: 'visit_9', label: 'V-9' },
                   { id: 'visit_10', label: 'V-10' },
                   { id: 'bloodbank_conf', label: 'Blood Bank Confirmation' },
-                  { id: 'insurance_conf', label: 'Insurance Confirmation' },
                 ]}
               />
               <TableBody>
@@ -582,16 +581,6 @@ export default function ProductsView() {
                 />
               }
               label="Blood Bank Confirmation"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="insurance_conf"
-                  checked={formData.insurance_conf}
-                  onChange={handleInputChange}
-                />
-              }
-              label="Insurance Confirmation"
             />
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>

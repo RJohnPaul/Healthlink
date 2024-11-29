@@ -27,7 +27,7 @@ import TableEmptyRows from '../../user/table-empty-rows';
 import UserTableToolbar from '../../user/user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../../user/utils';
 
-export default function ProductsView() {
+export default function RegularView() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);

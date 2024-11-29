@@ -11,7 +11,7 @@ export const LoginPage = lazy(() => import('src/pages/login'));
 export const LoginPage2 = lazy(() => import('src/pages/login2'));
 export const ReceiptPage = lazy(() => import('src/pages/receipt'));
 export const RehabPage = lazy(() => import('src/pages/rehab'));
-export const ProductsPage = lazy(() => import('src/pages/products'));
+export const RegularPage = lazy(() => import('src/pages/Regular'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const BloodPage = lazy(() => import('src/pages/blood'));
 export const InsuranceView = lazy(() => import('src/pages/insurance'));
@@ -49,9 +49,9 @@ export default function Router() {
             </ProtectedRoute>
           ),
         },
-        { path: 'patient', element: <ProductsPage /> },
+        { path: 'patient', element: <RegularPage /> },
         { path: 'rehab', element: <RehabPage /> },
-        { path: 'products', element: <LoginPage /> },
+        { path: 'Regular', element: <LoginPage /> },
         { path: 'bill', element: <BlogPage /> },
         { path: 'blog', element: <LoginPage /> },
         { path: 'medical', element: <ReceiptPage /> },

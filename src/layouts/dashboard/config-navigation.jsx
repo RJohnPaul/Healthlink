@@ -38,11 +38,6 @@ const navConfig = [
     icon: icon('ic_user'),
   },
   {
-    title: 'Insurance',
-    path: '/insurance',
-    icon: icon('ic_user'),
-  },
-  {
     title: 'Staff Record',
     path: '/blog',
     icon: icon('ic_user'),

@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import { ProductsView } from 'src/sections/products/view';
+import { RegularView } from 'src/sections/Regular/view';
 
 // ----------------------------------------------------------------------
 
-export default function ProductsPage() {
+export default function RegularPage() {
   return (
     <>
       <Helmet>
         <title> Healthlink Pro </title>
       </Helmet>
 
-      <ProductsView />
+      <RegularView />
     </>
   );
 }
