@@ -24,7 +24,7 @@ Welcome to **HealthlinkPro** – a comprehensive healthcare management system de
    - Effortlessly create medical leave certificates based on patient data.
 
 2. **Why not Add a Bunch! -- CSV File Extracter**
-   - Instead of Entering Records,You can use the CSV Uploader to add 100+ Records at the same time
+   - Instead of Entering Records,You can use the CSV Uploader to upload Excel Documents of 100+ Records!
 
 3. **Secure and Protected Subdirectories**
    - All dashboard pages use **hashed URL subdirectories** to ensure secure access to sensitive data.
