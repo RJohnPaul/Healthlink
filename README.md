@@ -6,6 +6,16 @@
 
 Welcome to **HealthlinkPro** – a comprehensive healthcare management system designed to streamline clinic operations. This README provides detailed instructions for setting up, using, and understanding the features of the project.
 
+## User Credentials
+
+- **Admin Username:** `root`
+- **Admin Password:** `root`
+- **Staff Username:** `root2`
+- **Staff Password:** `root2`
+- **Unique Pin:** `100`
+- **Server Pin:** `1999`
+
+---
 
 ## Features
 
@@ -192,17 +202,6 @@ CREATE TABLE staff (
     dec INT
 );
 ```
-
----
-
-## User Credentials
-
-- **Admin Username:** `root`
-- **Admin Password:** `root`
-- **Staff Username:** `root2`
-- **Staff Password:** `root2`
-- **Unique Pin:** `100`
-- **Server Pin:** `1999`
 
 ---
 
