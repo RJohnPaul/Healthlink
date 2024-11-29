@@ -23,21 +23,27 @@ Welcome to **HealthlinkPro** – a comprehensive healthcare management system de
    - Generate receipts dynamically for patients, including treatment and payment details, using **React-PDF Render**.
    - Effortlessly create medical leave certificates based on patient data.
 
-2. **Secure and Protected Subdirectories**
+2. **Why not Add a Bunch! -- CSV File Extracter**
+   - Instead of Entering Records,You can use the CSV Uploader to add 100+ Records at the same time
+
+3. **Secure and Protected Subdirectories**
    - All dashboard pages use **hashed URL subdirectories** to ensure secure access to sensitive data.
 
-3. **Home Dashboard with Summary Metrics**
+4. **Home Dashboard with Summary Metrics**
    - A **summary page** serves as the dashboard homepage, providing real-time insights:
      - **Daily Patients**
      - **Total Patients**
      - **Total Revenue**
      - **Total Staff**
 
-4. **Staff Management System**
+5. **Staff Management System**
    - Manage staff attendance efficiently via the **Staff Page**.
    - Generate monthly attendance sheets that summarize attendance for all staff members across each month.
 
-5. **Interactive and User-Friendly UI**
+6. **Built in Search-Engine**
+   - Built in Search Engine that can filter out from **1000+** Records using the **Phone Number**
+   
+7. **Interactive and User-Friendly UI**
    - Built with **React** and styled with **TailwindCSS** for a responsive, modern interface.
    - Seamless navigation between pages for an intuitive user experience.
 
