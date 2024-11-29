@@ -236,7 +236,7 @@ Follow these steps to set up the project locally:
 ![Staff Page](https://github.com/RJohnPaul/Healthlink/blob/f7345faed25667b29429951ce55fb6d37a74081b/staff.png)
 
 ### Receipt Generation
-![Dynamic Receipt](path/to/receipt-screenshot.png)
+![Dynamic Receipt](https://github.com/RJohnPaul/Healthlink/blob/b78a04d1b16f466407b7d1b01c118446d2127877/bill.png)
 
 ---
 
