@@ -459,7 +459,7 @@ const handleCsvFileChange = (event) => {
             startIcon={<UploadFileIcon />}
             component="label"
           >
-            Upload CSV
+            Upload CSV/Excel File
             <input
               type="file"
               hidden
