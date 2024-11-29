@@ -1,8 +1,11 @@
 # HealthlinkPro
 
-Welcome to **HealthlinkPro** – a comprehensive healthcare management system designed to streamline clinic operations. This README provides detailed instructions for setting up, using, and understanding the features of the project.
+![Home Dashboard](https://github.com/RJohnPaul/Healthlink/blob/1d9056c3e47097346b3cf488f67171e4a5d50827/home.png)
 
 ---
+
+Welcome to **HealthlinkPro** – a comprehensive healthcare management system designed to streamline clinic operations. This README provides detailed instructions for setting up, using, and understanding the features of the project.
+
 
 ## Features
 
