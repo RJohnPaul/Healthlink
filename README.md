@@ -1,6 +1,6 @@
 # HealthlinkPro
 
-![Home Dashboard](https://github.com/RJohnPaul/Healthlink/blob/1d9056c3e47097346b3cf488f67171e4a5d50827/home.png)
+![Home Dashboard](https://github.com/RJohnPaul/Healthlink/blob/3cf75421d95c96f090814b9c5ad208226c119bd1/Template%20Example%20(2).png)
 
 ---
 
