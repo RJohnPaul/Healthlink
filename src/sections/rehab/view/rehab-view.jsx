@@ -495,11 +495,19 @@ export default function RegularView() {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Rehab Patients</Typography>
         <Stack direction="row" spacing={2}>
-          <Button
+        <Button
             variant="contained"
             color="inherit"
             startIcon={<UploadFileIcon />}
             component="label"
+            sx={{
+              transition: 'color 0.5s, background-color 0.5s, box-shadow 0.5s',
+              '&:hover': {
+                color: 'lightgreen',
+                backgroundColor: 'black',
+                boxShadow: 3, // Adds shadow on hover
+              },
+            }}
           >
             Upload CSV/Excel File
             <input type="file" hidden accept=".csv,.xlsx,.xls" onChange={handleCsvFileChange} />
@@ -507,8 +515,16 @@ export default function RegularView() {
           <Button
             variant="contained"
             color="inherit"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleOpenModal}
+            startIcon={<UploadFileIcon />}
+            component="label"
+            sx={{
+              transition: 'color 0.5s, background-color 0.5s, box-shadow 0.5s',
+              '&:hover': {
+                color: 'lightgreen',
+                backgroundColor: 'black',
+                boxShadow: 3, // Adds shadow on hover
+              },
+            }}
           >
             Add User
           </Button>

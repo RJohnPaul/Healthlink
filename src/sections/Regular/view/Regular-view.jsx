@@ -500,6 +500,14 @@ export default function RegularView() {
             color="inherit"
             startIcon={<UploadFileIcon />}
             component="label"
+            sx={{
+              transition: 'color 0.5s, background-color 0.5s, box-shadow 0.5s',
+              '&:hover': {
+                color: 'lightgreen',
+                backgroundColor: 'black',
+                boxShadow: 3, // Adds shadow on hover
+              },
+            }}
           >
             Upload CSV/Excel File
             <input type="file" hidden accept=".csv,.xlsx,.xls" onChange={handleCsvFileChange} />
@@ -509,6 +517,14 @@ export default function RegularView() {
             color="inherit"
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={handleOpenModal}
+            sx={{
+              transition: 'color 0.5s, background-color 0.5s, box-shadow 0.5s',
+              '&:hover': {
+                color: 'lightblue',
+                backgroundColor: 'black',
+                boxShadow: 3, // Adds shadow on hover
+              },
+            }}
           >
             Add User
           </Button>
