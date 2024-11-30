@@ -23,8 +23,8 @@ Welcome to **HealthlinkPro** – a comprehensive healthcare management system de
    - Generate receipts dynamically for patients, including treatment and payment details, using **React-PDF Render**.
    - Effortlessly create medical leave certificates based on patient data.
 
-2. **Why not Add a Bunch! -- CSV File Extracter**
-   - Instead of Entering Records,You can use the CSV Uploader to upload Excel Documents of 100+ Records!
+2. **Why not Add a Bunch! -- CSV,XLSX,XLS File Extracter**
+   - Instead of Entering Records,You can use the CSV/XLSX,XLS Uploader to upload Excel Documents of 100+ Records At the Same Time!
 
 3. **Secure and Protected Subdirectories**
    - All dashboard pages use **hashed URL subdirectories** to ensure secure access to sensitive data.
