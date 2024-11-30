@@ -135,7 +135,8 @@ CREATE TABLE clinic (
     visit_8 DATE,
     visit_9 DATE,
     visit_10 DATE,
-    bloodbank_conf BOOLEAN
+    bloodbank_conf BOOLEAN,
+    insurance_conf BOOLEAN
 );
 ```
 
@@ -181,7 +182,9 @@ CREATE TABLE rehab (
     visit_9 DATE,
     visit_10 DATE,
     rehab_commencement DATE,
-    rehab_last_date DATE
+    rehab_last_date DATE,
+    bloodbank_conf BOOLEAN,
+    insurance_conf BOOLEAN
 );
 ```
 
