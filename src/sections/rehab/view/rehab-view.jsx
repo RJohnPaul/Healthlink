@@ -102,7 +102,7 @@ export default function RegularView() {
       const to = from + pageSize - 1;
 
       return supabase
-        .from('clinic')
+        .from('rehab')
         .select('*', { count: 'exact' })
         .order('sno', { ascending: true })
         .range(from, to)
@@ -288,7 +288,7 @@ const handleCsvFileChange = (event) => {
 
       // Get the last serial number
       const { data: lastRecord } = await supabase
-        .from('clinic')
+        .from('rehab')
         .select('sno')
         .order('sno', { ascending: false })
         .limit(1);
@@ -330,7 +330,7 @@ const handleCsvFileChange = (event) => {
 
       // Insert the data
       const { error } = await supabase
-        .from('clinic')
+        .from('rehab')
         .insert(processedData);
 
       if (error) throw error;
@@ -405,7 +405,7 @@ const handleCsvFileChange = (event) => {
       );
 
       const { data: lastRecord } = await supabase
-        .from('clinic')
+        .from('rehab')
         .select('sno')
         .order('sno', { ascending: false })
         .limit(1);
@@ -413,7 +413,7 @@ const handleCsvFileChange = (event) => {
       const newSno = lastRecord.length > 0 ? lastRecord[0].sno + 1 : 1;
       cleanedFormData.sno = newSno;
 
-      const { error } = await supabase.from('clinic').insert([cleanedFormData]);
+      const { error } = await supabase.from('rehab').insert([cleanedFormData]);
       
       if (error) throw error;
 
@@ -451,7 +451,7 @@ const handleCsvFileChange = (event) => {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Regular Patients</Typography>
+        <Typography variant="h4">Rehab Patients</Typography>
         <Stack direction="row" spacing={2}>
           <Button
             variant="contained"
