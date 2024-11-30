@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -45,7 +46,7 @@ export default function RegularView() {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'success'
+    severity: 'success',
   });
 
   const [formData, setFormData] = useState({
@@ -60,8 +61,6 @@ export default function RegularView() {
     medical_history: '',
     amount_paid: '',
     days_attended: '',
-    rehab_commencement_date: '',
-    rehab_last_date: '',
     visit_1: '',
     visit_2: '',
     visit_3: '',
@@ -72,6 +71,8 @@ export default function RegularView() {
     visit_8: '',
     visit_9: '',
     visit_10: '',
+    bloodbank_conf: false,
+    insurance_conf: false,
   });
 
   const [selectedVisit, setSelectedVisit] = useState('visit_1');
@@ -85,7 +86,7 @@ export default function RegularView() {
   const [loading, setLoading] = useState(false);
 
   // Required columns for CSV validation
-  const requiredColumns = ['phone_number', 'alternate_number', 'name', 'age'];
+  const requiredColumns = ['name'];
 
   // Helper function to format date from DD-MM-YYYY to YYYY-MM-DD
   const formatDate = (dateStr) => {
@@ -108,15 +109,13 @@ export default function RegularView() {
         .range(from, to)
         .then(({ data, error, count }) => {
           if (error) throw error;
-          
+
           const newData = [...accumulatedData, ...(data || [])];
           const newRecordCount = recordCount === null ? count : recordCount;
 
-          if (!data || data.length < pageSize) {
-            return { data: newData, count: newRecordCount };
-          }
-
-          return fetchPage(currentPage + 1, newData, newRecordCount);
+          return !data || data.length < pageSize
+            ? { data: newData, count: newRecordCount }
+            : fetchPage(currentPage + 1, newData, newRecordCount);
         });
     };
 
@@ -182,8 +181,6 @@ export default function RegularView() {
       medical_history: '',
       amount_paid: '',
       days_attended: '',
-      rehab_commencement_date: '',
-      rehab_last_date: '',
       visit_1: '',
       visit_2: '',
       visit_3: '',
@@ -194,90 +191,115 @@ export default function RegularView() {
       visit_8: '',
       visit_9: '',
       visit_10: '',
+      bloodbank_conf: false,
+      insurance_conf: false,
     });
     setSelectedVisit('visit_1');
   };
 
- // At the top of the component
-const PIN_EXPIRY_TIME = 60 * 60 * 1000; // 1 hour in milliseconds
+  // At the top of the component
+  const PIN_EXPIRY_TIME = 60 * 60 * 1000; // 1 hour in milliseconds
 
-// Add new function to check pin validity
-const isPinStillValid = useCallback(() => {
-  const pinTimestamp = localStorage.getItem('pinTimestamp');
-  if (!pinTimestamp) return false;
-  
-  const now = new Date().getTime();
-  return (now - parseInt(pinTimestamp, 10)) < PIN_EXPIRY_TIME;
-}, [PIN_EXPIRY_TIME]);
+  // Add new function to check pin validity
+  const isPinStillValid = useCallback(() => {
+    const pinTimestamp = localStorage.getItem('pinTimestamp');
+    if (!pinTimestamp) return false;
 
-// Modify handlePinSubmit
-const handlePinSubmit = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('creds')
-      .select('serverpin')
-      .eq('serverpin', pin);
+    const now = new Date().getTime();
+    return now - parseInt(pinTimestamp, 10) < PIN_EXPIRY_TIME;
+  }, [PIN_EXPIRY_TIME]);
 
-    if (error) throw error;
+  // Modify handlePinSubmit
+  const handlePinSubmit = async () => {
+    try {
+      const { data, error } = await supabase.from('creds').select('serverpin').eq('serverpin', pin);
 
-    if (data && data.length > 0) {
-      setIsPinValid(true);
-      localStorage.setItem('pinTimestamp', new Date().getTime().toString());
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setIsPinValid(true);
+        localStorage.setItem('pinTimestamp', new Date().getTime().toString());
+
+        if (csvFile) {
+          handleCsvUploadModalOpen();
+        } else {
+          setOpenModal(true);
+        }
+        setOpenPinModal(false);
+      } else {
+        setIsPinValid(false);
+        setSnackbar({
+          open: true,
+          message: 'Invalid Pin. Please try again.',
+          severity: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error checking pin:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error validating pin. Please try again.',
+        severity: 'error',
+      });
+    }
+  };
+
+  const convertExcelToCSV = (file) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
       
-      if (csvFile) {
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Get the first worksheet
+          const worksheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[worksheetName];
+          
+          // Convert to array of objects instead of CSV string
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+          resolve(jsonData);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = (error) => reject(error);
+      reader.readAsArrayBuffer(file);
+    });
+
+  const handleCsvFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+
+      if (!['csv', 'xlsx', 'xls'].includes(fileExtension)) {
+        setSnackbar({
+          open: true,
+          message: 'Please select a CSV or Excel file',
+          severity: 'error',
+        });
+        return;
+      }
+
+      setCsvFile(file);
+      if (isPinStillValid()) {
         handleCsvUploadModalOpen();
       } else {
-        setOpenModal(true);
+        handleOpenModal(); // Open pin modal first
       }
-      setOpenPinModal(false);
-    } else {
-      setIsPinValid(false);
-      setSnackbar({
-        open: true,
-        message: 'Invalid Pin. Please try again.',
-        severity: 'error'
-      });
     }
-  } catch (error) {
-    console.error('Error checking pin:', error);
-    setSnackbar({
-      open: true,
-      message: 'Error validating pin. Please try again.',
-      severity: 'error'
-    });
-  }
-};
-
-const handleCsvFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    if (!file.name.toLowerCase().endsWith('.csv')) {
-      setSnackbar({
-        open: true,
-        message: 'Please select a CSV file',
-        severity: 'error'
-      });
-      return;
-    }
-    setCsvFile(file);
-    if (isPinStillValid()) {
-      handleCsvUploadModalOpen();
-    } else {
-      handleOpenModal(); // Open pin modal first
-    }
-  }
-};
+  };
 
   const validateAndProcessCsv = async (results) => {
-    const headers = results.meta.fields;
+    const data = Array.isArray(results) ? results : results.data;
+    const headers = Array.isArray(results) ? Object.keys(data[0] || {}) : results.meta.fields;
     
-    // Validate required columns
-    const missingColumns = requiredColumns.filter(col => !headers.includes(col));
-    
-    if (missingColumns.length > 0) {
+    // Validate required column (name)
+    if (!headers.includes('name')) {
       setSnackbar({
         open: true,
-        message: `Missing required columns: ${missingColumns.join(', ')}`,
+        message: 'Missing required column: name',
         severity: 'error'
       });
       return false;
@@ -293,39 +315,46 @@ const handleCsvFileChange = (event) => {
         .order('sno', { ascending: false })
         .limit(1);
 
-      let currentSno = lastRecord.length > 0 ? lastRecord[0].sno : 0;
+      let currentSno = lastRecord?.[0]?.sno || 0;
 
       // Process the data
-      const processedData = results.data
-        .filter(row => row.phone_number && row.name) // Filter out empty rows
+      const processedData = data
+        .filter(row => row.name) // Only filter for name
         .map(row => {
           currentSno += 1;
           return {
             ...row,
             sno: currentSno,
+            // Ensure all fields exist with proper type conversion
+            phone_number: row.phone_number || null,
+            alternate_number: row.alternate_number || null,
+            age: row.age ? parseInt(row.age, 10) || null : null,
+            occupation: row.occupation || null,
+            diagnosis: row.diagnosis || null,
+            treatment_plan: row.treatment_plan || null,
+            staff_attended: row.staff_attended || null,
+            medical_history: row.medical_history || null,
+            amount_paid: row.amount_paid ? parseFloat(row.amount_paid) || null : null,
+            days_attended: row.days_attended ? parseInt(row.days_attended, 10) || null : null,
             // Format dates for all visit columns
-            visit_1: formatDate(row.visit_1),
-            visit_2: formatDate(row.visit_2),
-            visit_3: formatDate(row.visit_3),
-            visit_4: formatDate(row.visit_4),
-            visit_5: formatDate(row.visit_5),
-            visit_6: formatDate(row.visit_6),
-            visit_7: formatDate(row.visit_7),
-            visit_8: formatDate(row.visit_8),
-            visit_9: formatDate(row.visit_9),
-            visit_10: formatDate(row.visit_10),
+            visit_1: formatDate(row.visit_1) || null,
+            visit_2: formatDate(row.visit_2) || null,
+            visit_3: formatDate(row.visit_3) || null,
+            visit_4: formatDate(row.visit_4) || null,
+            visit_5: formatDate(row.visit_5) || null,
+            visit_6: formatDate(row.visit_6) || null,
+            visit_7: formatDate(row.visit_7) || null,
+            visit_8: formatDate(row.visit_8) || null,
+            visit_9: formatDate(row.visit_9) || null,
+            visit_10: formatDate(row.visit_10) || null,
             // Convert boolean strings to actual booleans
-            bloodbank_conf: row.bloodbank_conf === 'TRUE' || row.bloodbank_conf === 'true' || row.bloodbank_conf === true,
-            insurance_conf: row.insurance_conf === 'TRUE' || row.insurance_conf === 'true' || row.insurance_conf === true,
-            // Convert numeric strings to numbers
-            age: parseInt(row.age, 10) || null,
-            amount_paid: parseFloat(row.amount_paid) || null,
-            days_attended: parseInt(row.days_attended, 10) || null,
+            bloodbank_conf: row.bloodbank_conf === 'TRUE' || row.bloodbank_conf === 'true' || row.bloodbank_conf === true || false,
+            insurance_conf: row.insurance_conf === 'TRUE' || row.insurance_conf === 'true' || row.insurance_conf === true || false,
           };
         });
 
       if (processedData.length === 0) {
-        throw new Error('No valid data found in CSV file');
+        throw new Error('No data with required name column found in file');
       }
 
       // Insert the data
@@ -344,40 +373,54 @@ const handleCsvFileChange = (event) => {
       fetchUserData();
       handleCsvUploadModalClose();
 
-      return true; // Return true if everything is successful
+      return true;
 
     } catch (error) {
-      console.error('Error processing CSV:', error);
+      console.error('Error processing file:', error);
       setSnackbar({
         open: true,
-        message: `Error uploading CSV file: ${  error.message}`,
+        message: `Error uploading file: ${error.message}`,
         severity: 'error'
       });
-      return false; // Return false if there is an error
+      return false;
     } finally {
       setUploading(false);
     }
   };
 
-  const handleCsvUpload = () => {
+  const handleCsvUpload = async () => {
     if (!csvFile) return;
-  
-    Papa.parse(csvFile, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        await validateAndProcessCsv(results);
-        setCsvFile(null); // Reset CSV file state
-      },
-      error: (error) => {
-        setSnackbar({
-          open: true,
-          message: `Error parsing CSV file: ${error.message}`,
-          severity: 'error'
+    
+    try {
+      const fileExtension = csvFile.name.split('.').pop().toLowerCase();
+      
+      if (['xlsx', 'xls'].includes(fileExtension)) {
+        // Convert Excel to JSON data directly
+        const jsonData = await convertExcelToCSV(csvFile);
+        await validateAndProcessCsv(jsonData);
+      } else {
+        // Handle CSV file
+        Papa.parse(csvFile, {
+          header: true,
+          skipEmptyLines: true,
+          complete: async (results) => {
+            await validateAndProcessCsv(results);
+          },
+          error: (error) => {
+            throw new Error(`Error parsing CSV file: ${error.message}`);
+          }
         });
-        setCsvFile(null); // Reset on error too
       }
-    });
+    } catch (error) {
+      console.error('Error processing file:', error);
+      setSnackbar({
+        open: true,
+        message: `Error processing file: ${error.message}`,
+        severity: 'error'
+      });
+    } finally {
+      setCsvFile(null);
+    }
   };
 
   useEffect(() => {
@@ -388,9 +431,9 @@ const handleCsvFileChange = (event) => {
 
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -414,25 +457,24 @@ const handleCsvFileChange = (event) => {
       cleanedFormData.sno = newSno;
 
       const { error } = await supabase.from('rehab').insert([cleanedFormData]);
-      
+
       if (error) throw error;
 
       setSnackbar({
         open: true,
         message: 'User added successfully!',
-        severity: 'success'
+        severity: 'success',
       });
 
       handleCloseModal();
       fetchUserData();
       resetFormData();
-
     } catch (error) {
       console.error('Error inserting data:', error);
       setSnackbar({
         open: true,
-        message: `Error adding user: ${  error.message}`,
-        severity: 'error'
+        message: `Error adding user: ${error.message}`,
+        severity: 'error',
       });
     }
   };
@@ -460,12 +502,7 @@ const handleCsvFileChange = (event) => {
             component="label"
           >
             Upload CSV/Excel File
-            <input
-              type="file"
-              hidden
-              accept=".csv"
-              onChange={handleCsvFileChange}
-            />
+            <input type="file" hidden accept=".csv,.xlsx,.xls" onChange={handleCsvFileChange} />
           </Button>
           <Button
             variant="contained"
@@ -518,8 +555,6 @@ const handleCsvFileChange = (event) => {
                   { id: 'medical_history', label: 'Medical History' },
                   { id: 'days_attended', label: 'Days Attended' },
                   { id: 'amount_paid', label: 'Amount Paid' },
-                  { id: 'rehab_commencement_date', label: 'Rehab Commencement Date' },
-                  { id: 'rehab_last_date', label: 'Rehab Last Date' },
                   { id: 'visit_1', label: 'V-1' },
                   { id: 'visit_2', label: 'V-2' },
                   { id: 'visit_3', label: 'V-3' },
@@ -565,9 +600,7 @@ const handleCsvFileChange = (event) => {
                   height={53}
                   emptyRows={emptyRows(page, rowsPerPage, filteredUsers.length)}
                 />
-                {filteredUsers.length === 0 && (
-                  <TableNoData query={filterName} />
-                )}
+                {filteredUsers.length === 0 && <TableNoData query={filterName} />}
               </TableBody>
             </Table>
           </TableContainer>
@@ -589,18 +622,22 @@ const handleCsvFileChange = (event) => {
 
       {/* Pin Modal */}
       <Modal open={openPinModal} onClose={handleClosePinModal}>
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 400,
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          p: 4,
-        }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: 400,
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            p: 4,
+          }}
+        >
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
+          >
             <Typography variant="h6">Enter Server Pin</Typography>
             <IconButton onClick={handleClosePinModal}>
               <CloseIcon />
@@ -614,11 +651,7 @@ const handleCsvFileChange = (event) => {
             onChange={(e) => setPin(e.target.value)}
             sx={{ mb: 3 }}
           />
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handlePinSubmit}
-          >
+          <Button fullWidth variant="contained" onClick={handlePinSubmit}>
             Submit Pin
           </Button>
         </Box>
@@ -626,18 +659,22 @@ const handleCsvFileChange = (event) => {
 
       {/* CSV Upload Modal */}
       <Modal open={csvUploadModalOpen} onClose={handleCsvUploadModalClose}>
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 400,
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          p: 4,
-        }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: 400,
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            p: 4,
+          }}
+        >
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
+          >
             <Typography variant="h6">Upload CSV File</Typography>
             <IconButton onClick={handleCsvUploadModalClose}>
               <CloseIcon />
@@ -665,26 +702,30 @@ const handleCsvFileChange = (event) => {
 
       {/* Add/Edit User Modal */}
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: 600,
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          p: 4,
-          maxHeight: '80vh',
-          overflowY: 'auto',
-        }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: 600,
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            p: 4,
+            maxHeight: '80vh',
+            overflowY: 'auto',
+          }}
+        >
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
+          >
             <Typography variant="h6">Add New User</Typography>
             <IconButton onClick={handleCloseModal}>
               <CloseIcon />
             </IconButton>
           </Box>
-          
+
           <Stack spacing={3}>
             {/* Form fields */}
             <TextField
@@ -762,22 +803,6 @@ const handleCsvFileChange = (event) => {
               label="Days Attended"
               name="days_attended"
               value={formData.days_attended}
-              onChange={handleInputChange}
-            />
-            <TextField
-              fullWidth
-              type="date"
-              label="Rehab Commencement Date"
-              name="rehab_commencement_date"
-              value={formData.rehab_commencement_date}
-              onChange={handleInputChange}
-            />
-            <TextField
-              fullWidth
-              type="date"
-              label="Rehab Last Date"
-              name="rehab_last_date"
-              value={formData.rehab_last_date}
               onChange={handleInputChange}
             />
             <TextField
@@ -870,7 +895,7 @@ const handleCsvFileChange = (event) => {
               }
               label="Blood Bank Confirmation"
             />
-            
+
             <FormControlLabel
               control={
                 <Checkbox
@@ -881,12 +906,8 @@ const handleCsvFileChange = (event) => {
               }
               label="Insurance Confirmation"
             />
-            
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={handleSubmit}
-            >
+
+            <Button fullWidth variant="contained" onClick={handleSubmit}>
               Submit
             </Button>
           </Stack>
@@ -894,17 +915,13 @@ const handleCsvFileChange = (event) => {
       </Modal>
 
       {/* Snackbar for notifications */}
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={handleSnackbarClose} 
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
