@@ -112,7 +112,7 @@ The project utilizes **Supabase** as the backend. Use the SQL commands below to 
 3. Navigate the **SQL Editor Section** As Shown Below
 
 ---
-![Home Dashboard](https://github.com/RJohnPaul/Healthlink/blob/1d9056c3e47097346b3cf488f67171e4a5d50827/home.png)
+![Home Dashboard](https://github.com/RJohnPaul/Healthlink/blob/6a0966fc454194f498f00a3d0ee5b7972a362bf1/Reference_Img_1.png)
 ---
 5. Paste all the three commands one by one on the Editor and click on **Run**
 
