@@ -110,9 +110,10 @@ The project utilizes **Supabase** as the backend. Use the SQL commands below to 
 1. Create a **organization** on Supabase
 2. Create a **Project** on Supabase
 3. Navigate the **SQL Editor Section** As Shown Below
---
+
+---
 ![Home Dashboard](https://github.com/RJohnPaul/Healthlink/blob/1d9056c3e47097346b3cf488f67171e4a5d50827/home.png)
---
+---
 5. Paste all the three commands one by one on the Editor and click on **Run**
 
 ### `clinic` Table
