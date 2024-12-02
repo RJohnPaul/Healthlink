@@ -19,7 +19,7 @@ Welcome to **HealthlinkPro** – a comprehensive healthcare management system de
 
 ## Features
 
-1. **Dynamic Receipt and Medical Leave Generation**
+1. **Dynamic Bill-Receipt and Medical-Leave Generation**
    - Generate receipts dynamically for patients, including treatment and payment details, using **React-PDF Render**.
    - Effortlessly create medical leave certificates based on patient data.
 
