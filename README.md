@@ -7,7 +7,7 @@
 Welcome to **HealthlinkPro** – a comprehensive healthcare management system designed to streamline clinic operations. This README provides detailed instructions for setting up, using, and understanding the features of the project.
 
 ## User Credentials
-
+--**Important** - There is no need to manually enter these values as there a autofill option for filling credentials.
 - **Admin Username:** `root`
 - **Admin Password:** `root`
 - **Staff Username:** `root2`
