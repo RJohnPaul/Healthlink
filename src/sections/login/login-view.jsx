@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
-// eslint-disable-next-line no-unused-vars
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,8 +9,15 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
+import Snackbar from '@mui/material/Snackbar';
+import Grow from '@mui/material/Grow';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import { alpha, useTheme, styled } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { useRouter } from 'src/routes/hooks';
 import { supabase } from 'src/_mock/user';
@@ -46,6 +52,23 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
+const AutofillAnimation = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main}, ${theme.palette.error.main}, ${theme.palette.warning.main})`,
+  backgroundSize: '400% 400%',
+  animation: 'gradient 3s ease infinite',
+  zIndex: -1,
+  '@keyframes gradient': {
+    '0%': { backgroundPosition: '0% 50%' },
+    '50%': { backgroundPosition: '100% 50%' },
+    '100%': { backgroundPosition: '0% 50%' },
+  },
+}));
+
 export default function LoginView() {
   const theme = useTheme();
   const router = useRouter();
@@ -59,6 +82,9 @@ export default function LoginView() {
   const [newPassword, setNewPassword] = useState('');
   const [retypeNewPassword, setRetypeNewPassword] = useState('');
   const [users, setUsers] = useState([]);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [autofillAnimation, setAutofillAnimation] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -131,6 +157,7 @@ export default function LoginView() {
                 console.error('Error updating staff password:', error.message);
               } else {
                 alert('Staff password changed successfully');
+                setOpenDialog(false);
               }
             } catch (error) {
               console.error('Error updating staff password:', error.message);
@@ -153,6 +180,7 @@ export default function LoginView() {
               console.error('Error updating login password:', error.message);
             } else {
               alert('Login password changed successfully');
+              setOpenDialog(false);
             }
           } catch (error) {
             console.error('Error updating login password:', error.message);
@@ -169,6 +197,7 @@ export default function LoginView() {
   };
 
   const handleAutoFill = (type) => {
+    setOpenSnackbar(false);
     if (type === 'regular') {
       setEmail(VITE_NEXT_USERNAME);
       setPassword(VITE_NEXT_PASSWORD);
@@ -178,6 +207,9 @@ export default function LoginView() {
       setPassword(VITE_NEXT_STAFF_PASSWORD);
       setIsStaff(true);
     }
+    setOpenSnackbar(true);
+    setAutofillAnimation(true);
+    setTimeout(() => setAutofillAnimation(false), 3000);
   };
 
   const renderForm = (
@@ -210,40 +242,6 @@ export default function LoginView() {
         />
       </Stack>
 
-      {changePassword && (
-        <Stack spacing={3} sx={{ mt: 3 }}>
-          <TextField
-            name="uniquePin"
-            label="Unique Pin"
-            value={uniquePin}
-            onChange={(e) => setUniquePin(e.target.value)}
-          />
-          <TextField
-            name="oldPassword"
-            label="Old Password"
-            type="password"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-          />
-          <TextField
-            name="newPassword"
-            label="New Password"
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <TextField
-            name="retypeNewPassword"
-            label="Retype New Password"
-            type="password"
-            value={retypeNewPassword}
-            onChange={(e) => setRetypeNewPassword(e.target.value)}
-          />
-          <Button variant="contained" color="primary" onClick={handleChangePassword}>
-            {isStaff ? 'Change Staff Password' : 'Change Login Password'}
-          </Button>
-        </Stack>
-      )}
       <Box mt={3}>
         <LoadingButton
           fullWidth
@@ -257,20 +255,30 @@ export default function LoginView() {
         </LoadingButton>
       </Box>
       <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-        <Button variant="contained" color="primary" onClick={() => handleAutoFill('regular')}>
+        <Button variant="contained" color="primary" fullWidth onClick={() => handleAutoFill('regular')}>
           Regular
         </Button>
-        <Button variant="contained" color="primary" onClick={() => handleAutoFill('staff')}>
+        <Button variant="contained" color="primary" fullWidth onClick={() => handleAutoFill('staff')}>
           Staff
         </Button>
         <Button
           variant="contained"
           color="secondary"
+          fullWidth
           onClick={() => window.open('https://github.com/RJohnPaul/Healthlink', '_blank')}
         >
-          Documentation
+          Github
         </Button>
       </Stack>
+      <Button
+        variant="contained"
+        color="primary"
+        fullWidth
+        sx={{ mt: 2 }}
+        onClick={() => setOpenDialog(true)}
+      >
+        Change Password
+      </Button>
     </>
   );
 
@@ -282,8 +290,10 @@ export default function LoginView() {
           imgUrl: '/assets/background/overlay_4.jpg',
         }),
         height: 1,
+        position: 'relative',
       }}
     >
+      {autofillAnimation && <AutofillAnimation />}
       <Logo
         sx={{
           position: 'fixed',
@@ -312,6 +322,69 @@ export default function LoginView() {
           {renderForm}
         </StyledCard>
       </Stack>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        message="Credentials autofilled"
+        TransitionComponent={Grow}
+      />
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} scroll="paper">
+        <DialogTitle>
+          Change Password
+          <IconButton
+            aria-label="close"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (dialogTheme) => dialogTheme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={3}>
+            <TextField
+              name="uniquePin"
+              label="Unique Pin"
+              value={uniquePin}
+              onChange={(e) => setUniquePin(e.target.value)}
+            />
+            <TextField
+              name="oldPassword"
+              label="Old Password"
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+            />
+            <TextField
+              name="newPassword"
+              label="New Password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+            <TextField
+              name="retypeNewPassword"
+              label="Retype New Password"
+              type="password"
+              value={retypeNewPassword}
+              onChange={(e) => setRetypeNewPassword(e.target.value)}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleChangePassword} color="primary">
+            {isStaff ? 'Change Staff Password' : 'Change Login Password'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
