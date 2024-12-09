@@ -168,6 +168,18 @@ export default function LoginView() {
     }
   };
 
+  const handleAutoFill = (type) => {
+    if (type === 'regular') {
+      setEmail(VITE_NEXT_USERNAME);
+      setPassword(VITE_NEXT_PASSWORD);
+      setIsStaff(false);
+    } else if (type === 'staff') {
+      setEmail(VITE_NEXT_STAFF_USERNAME);
+      setPassword(VITE_NEXT_STAFF_PASSWORD);
+      setIsStaff(true);
+    }
+  };
+
   const renderForm = (
     <>
       <Stack spacing={3}>
@@ -198,24 +210,8 @@ export default function LoginView() {
         />
       </Stack>
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 3 }}>
-        <Button variant="contained" color="primary" onClick={() => setIsStaff(true)}>
-          Staff
-        </Button>
-        <Button variant="contained" color="primary" onClick={() => setIsStaff(false)}>
-          Login
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => setChangePassword((prev) => !prev)}
-        >
-          Change Password
-        </Button>
-      </Stack>
-
       {changePassword && (
-        <Stack spacing={3}>
+        <Stack spacing={3} sx={{ mt: 3 }}>
           <TextField
             name="uniquePin"
             label="Unique Pin"
@@ -260,6 +256,21 @@ export default function LoginView() {
           {isStaff ? 'Login as Staff' : 'Login'}
         </LoadingButton>
       </Box>
+      <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+        <Button variant="contained" color="primary" onClick={() => handleAutoFill('regular')}>
+          Regular
+        </Button>
+        <Button variant="contained" color="primary" onClick={() => handleAutoFill('staff')}>
+          Staff
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => window.open('https://github.com/RJohnPaul/Healthlink', '_blank')}
+        >
+          Documentation
+        </Button>
+      </Stack>
     </>
   );
 
