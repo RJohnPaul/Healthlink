@@ -244,18 +244,19 @@ export default function RegularView() {
     }
   };
 
-  const convertExcelToCSV = (file) => new Promise((resolve, reject) => {
+  const convertExcelToCSV = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-          
+
           // Get the first worksheet
           const worksheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[worksheetName];
-          
+
           // Convert to array of objects instead of CSV string
           const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
           resolve(jsonData);
@@ -263,10 +264,41 @@ export default function RegularView() {
           reject(error);
         }
       };
-      
+
       reader.onerror = (error) => reject(error);
       reader.readAsArrayBuffer(file);
     });
+  const handleCsvDownload = async () => {
+    try {
+      const { data, error } = await supabase.from('rehab').select('*');
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const csv = Papa.unparse(data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'rehab_data.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        setSnackbar({
+          open: true,
+          message: 'No data available for download',
+          severity: 'info',
+        });
+      }
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      setSnackbar({
+        open: true,
+        message: `Error downloading CSV: ${error.message}`,
+        severity: 'error',
+      });
+    }
+  };
 
   const handleCsvFileChange = (event) => {
     const file = event.target.files[0];
@@ -294,13 +326,13 @@ export default function RegularView() {
   const validateAndProcessCsv = async (results) => {
     const data = Array.isArray(results) ? results : results.data;
     const headers = Array.isArray(results) ? Object.keys(data[0] || {}) : results.meta.fields;
-    
+
     // Validate required column (name)
     if (!headers.includes('name')) {
       setSnackbar({
         open: true,
         message: 'Missing required column: name',
-        severity: 'error'
+        severity: 'error',
       });
       return false;
     }
@@ -319,8 +351,8 @@ export default function RegularView() {
 
       // Process the data
       const processedData = data
-        .filter(row => row.name) // Only filter for name
-        .map(row => {
+        .filter((row) => row.name) // Only filter for name
+        .map((row) => {
           currentSno += 1;
           return {
             ...row,
@@ -348,8 +380,16 @@ export default function RegularView() {
             visit_9: formatDate(row.visit_9) || null,
             visit_10: formatDate(row.visit_10) || null,
             // Convert boolean strings to actual booleans
-            bloodbank_conf: row.bloodbank_conf === 'TRUE' || row.bloodbank_conf === 'true' || row.bloodbank_conf === true || false,
-            insurance_conf: row.insurance_conf === 'TRUE' || row.insurance_conf === 'true' || row.insurance_conf === true || false,
+            bloodbank_conf:
+              row.bloodbank_conf === 'TRUE' ||
+              row.bloodbank_conf === 'true' ||
+              row.bloodbank_conf === true ||
+              false,
+            insurance_conf:
+              row.insurance_conf === 'TRUE' ||
+              row.insurance_conf === 'true' ||
+              row.insurance_conf === true ||
+              false,
           };
         });
 
@@ -358,29 +398,26 @@ export default function RegularView() {
       }
 
       // Insert the data
-      const { error } = await supabase
-        .from('rehab')
-        .insert(processedData);
+      const { error } = await supabase.from('rehab').insert(processedData);
 
       if (error) throw error;
 
       setSnackbar({
         open: true,
         message: `Successfully uploaded ${processedData.length} records!`,
-        severity: 'success'
+        severity: 'success',
       });
 
       fetchUserData();
       handleCsvUploadModalClose();
 
       return true;
-
     } catch (error) {
       console.error('Error processing file:', error);
       setSnackbar({
         open: true,
         message: `Error uploading file: ${error.message}`,
-        severity: 'error'
+        severity: 'error',
       });
       return false;
     } finally {
@@ -390,10 +427,10 @@ export default function RegularView() {
 
   const handleCsvUpload = async () => {
     if (!csvFile) return;
-    
+
     try {
       const fileExtension = csvFile.name.split('.').pop().toLowerCase();
-      
+
       if (['xlsx', 'xls'].includes(fileExtension)) {
         // Convert Excel to JSON data directly
         const jsonData = await convertExcelToCSV(csvFile);
@@ -408,7 +445,7 @@ export default function RegularView() {
           },
           error: (error) => {
             throw new Error(`Error parsing CSV file: ${error.message}`);
-          }
+          },
         });
       }
     } catch (error) {
@@ -416,7 +453,7 @@ export default function RegularView() {
       setSnackbar({
         open: true,
         message: `Error processing file: ${error.message}`,
-        severity: 'error'
+        severity: 'error',
       });
     } finally {
       setCsvFile(null);
@@ -495,7 +532,23 @@ export default function RegularView() {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Rehab Patients</Typography>
         <Stack direction="row" spacing={2}>
-        <Button
+          <Button
+            variant="contained"
+            color="inherit"
+            startIcon={<Iconify icon="eva:download-fill" />}
+            onClick={handleCsvDownload}
+            sx={{
+              transition: 'color 0.5s, background-color 0.5s, box-shadow 0.5s',
+              '&:hover': {
+                color: 'lightgreen',
+                backgroundColor: 'black',
+                boxShadow: 3, // Adds shadow on hover
+              },
+            }}
+          >
+            Download CSV Data
+          </Button>
+          <Button
             variant="contained"
             color="inherit"
             startIcon={<UploadFileIcon />}

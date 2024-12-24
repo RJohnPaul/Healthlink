@@ -268,6 +268,29 @@ export default function RegularView() {
       reader.readAsArrayBuffer(file);
     });
 
+  const handleCsvFileDownload = async () => {
+    try {
+      const { data, error } = await supabase.from('clinic').select('*');
+      if (error) throw error;
+
+      const csvData = Papa.unparse(data);
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'clinic_data.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading CSV file:', error);
+      setSnackbar({
+        open: true,
+        message: `Error downloading CSV file: ${error.message}`,
+        severity: 'error',
+      });
+    }
+  };
   const handleCsvFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -495,6 +518,22 @@ export default function RegularView() {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Regular Patients</Typography>
         <Stack direction="row" spacing={2}>
+          <Button
+            variant="contained"
+            color="inherit"
+            startIcon={<Iconify icon="eva:download-fill" />}
+            onClick={handleCsvFileDownload}
+            sx={{
+              transition: 'color 0.5s, background-color 0.5s, box-shadow 0.5s',
+              '&:hover': {
+                color: 'lightgreen',
+                backgroundColor: 'black',
+                boxShadow: 3, // Adds shadow on hover
+              },
+            }}
+          >
+            Download CSV Data
+          </Button>
           <Button
             variant="contained"
             color="inherit"
