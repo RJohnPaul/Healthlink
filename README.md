@@ -26,6 +26,9 @@ Welcome to **HealthlinkPro** – a comprehensive healthcare management system de
 2. **Why not Add a Bunch! -- CSV,XLSX,XLS File Extracter**
    - Instead of Entering Records,You can use the CSV/XLSX,XLS Uploader to upload Excel Documents of 100+ Records At the Same Time!
 
+   2.1 **Why not Download -- CSV File Export Option**
+       -You can use the CSV Downloader to download Excel Documents of 100+ Records!
+
 3. **Secure and Protected Subdirectories**
    - All dashboard pages use **hashed URL subdirectories** to ensure secure access to sensitive data.
 
