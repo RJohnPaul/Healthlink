@@ -983,7 +983,3 @@ export default function RegularView() {
     </Container>
   );
 }
-// function RegularView() {
-//   return (
-//    <Container>'Hello World'</Container>
-//   );
