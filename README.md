@@ -4,6 +4,9 @@
 
 ---
 
+![Workflow](https://github.com/RJohnPaul/Healthlink/blob/784d7e4fa39f46ef4c52a92e96ffc35c11e1a638/_-%20visual%20selection%20(1).png)
+---
+
 Welcome to **HealthlinkPro** – a comprehensive healthcare management system designed to streamline clinic operations. This README provides detailed instructions for setting up, using, and understanding the features of the project.
 
 ## User Credentials
